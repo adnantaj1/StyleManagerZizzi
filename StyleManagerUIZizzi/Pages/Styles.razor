@@ -22,7 +22,7 @@
             }
             @foreach (var color in colors)
             {
-                <option value="@color.Id">@color.ColorName (@color.ColorNumber)</option>
+                <option value="@color.Id">@color.ColorName </option>
             }
         </InputSelect>
     </div>
@@ -36,24 +36,29 @@
             }
             @foreach (var size in sizes)
             {
-                <option value="@size.Id">@size.SizeName (@size.SizeNumber)</option>
+                <option value="@size.Id">@size.SizeName </option>
             }
         </InputSelect>
     </div>
 
     <button class="btn btn-success">Create Style</button>
+ 
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">@errorMessage</div>
+    }
 
     @if (!string.IsNullOrEmpty(successMessage))
     {
         <div class="alert alert-success mt-3">@successMessage</div>
     }
 </EditForm>
-
 @code {
     private CreateStyleDto newStyle = new();
     private List<ColorDto> colors = new();
     private List<SizeDto> sizes = new();
     private string? successMessage;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,15 +68,31 @@
 
     private async Task HandleSubmit()
     {
-        var response = await StyleService.CreateStyle(newStyle);
-        if (response.IsSuccessStatusCode)
+        successMessage = null;
+        errorMessage = null;
+
+        try
         {
-            successMessage = "🎉 Style created successfully!";
-            newStyle = new(); // reset form
+            var response = await StyleService.CreateStyle(newStyle);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "🎉 Style created successfully!";
+                newStyle = new(); // Reset form
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                errorMessage = "This style with the same color and size already exists.";
+            }
+            else
+            {
+                errorMessage = "Something went wrong while creating the style.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            successMessage = "⚠️ Failed to create style.";
+            errorMessage = $"Unexpected error: {ex.Message}";
         }
     }
 }
+

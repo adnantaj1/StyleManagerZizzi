@@ -1,45 +1,45 @@
-
-using StyleManagerUIZizzi.Data;
 using StyleManagerUIZizzi.Services;
-
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
-builder.Services.AddHttpClient<ColorService>(client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7041");
-});
-builder.Services.AddHttpClient<SizeService>(client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7041"); 
-});
-builder.Services.AddHttpClient<StyleService>(client =>
+// Register HttpClient once as a named client
+builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7041");
 });
 
+// Inject services using the shared named client
+builder.Services.AddScoped<ColorService>(sp =>
+{
+    var clientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    return new ColorService(clientFactory.CreateClient("ApiClient"));
+});
+builder.Services.AddScoped<SizeService>(sp =>
+{
+    var clientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    return new SizeService(clientFactory.CreateClient("ApiClient"));
+});
+builder.Services.AddScoped<StyleService>(sp =>
+{
+    var clientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    return new StyleService(clientFactory.CreateClient("ApiClient"));
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.MapBlazorHub();

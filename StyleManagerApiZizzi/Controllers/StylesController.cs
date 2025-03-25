@@ -29,6 +29,14 @@ namespace StyleManagerApiZizzi.Controllers
             if (color == null || size == null)
                 return BadRequest("Invalid ColorId or SizeId");
 
+            // 🔒 Check for duplicate
+            var exists = await _context.Styles.AnyAsync(s =>
+                s.StyleNumber == dto.StyleNumber &&
+                s.ColorId == dto.ColorId &&
+                s.SizeId == dto.SizeId);
+            if (exists)
+                return Conflict("This style already exists with the selected color and size.");
+
             var style = new Style
             {
                 StyleNumber = dto.StyleNumber,
