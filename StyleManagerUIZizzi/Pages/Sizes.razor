@@ -1,0 +1,42 @@
+﻿@page "/sizes"
+@using StyleManagerUIZizzi.Models
+@inject StyleManagerUIZizzi.Services.SizeService SizeService
+
+<h3>Add New Size</h3>
+
+<EditForm Model="@newSize" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Size Number</label>
+        <InputText class="form-control" @bind-Value="newSize.SizeNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label>Size Name</label>
+        <InputText class="form-control" @bind-Value="newSize.SizeName" />
+    </div>
+
+    <button class="btn btn-primary">Add Size</button>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success mt-3">@successMessage</div>
+    }
+</EditForm>
+
+@code {
+    private SizeDto newSize = new();
+    private string? successMessage;
+
+    private async Task HandleSubmit()
+    {
+        var response = await SizeService.CreateSize(newSize);
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Size added successfully!";
+            newSize = new(); // reset form
+        }
+    }
+}

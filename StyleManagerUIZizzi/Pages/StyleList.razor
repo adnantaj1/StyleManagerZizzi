@@ -1,0 +1,45 @@
+﻿@page "/styles-list"
+@inject StyleManagerUIZizzi.Services.StyleService StyleService
+@using StyleManagerUIZizzi.Models
+
+<h3>All Styles</h3>
+
+@if (styles is null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!styles.Any())
+{
+    <p><strong>No styles found.</strong></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Style Number</th>
+                <th>Color</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var style in styles)
+            {
+                <tr>
+                    <td>@style.StyleNumber</td>
+                    <td>@style.ColorName</td>
+                    <td>@style.SizeName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<StyleDto>? styles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        styles = await StyleService.GetAllStyles();
+    }
+}

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StyleManagerApiZizzi.Data;
 using StyleManagerApiZizzi.Models;
 using StyleManagerApiZizzi.Models.DTOs;
+using System.Drawing;
 
 namespace StyleManagerApiZizzi.Controllers
 {
@@ -22,11 +23,10 @@ namespace StyleManagerApiZizzi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Optional: validate FK existence
-            var colorExists = await _context.Colors.AnyAsync(c => c.Id == dto.ColorId);
-            var sizeExists = await _context.Sizes.AnyAsync(s => s.Id == dto.SizeId);
+            var color = await _context.Colors.FindAsync(dto.ColorId);
+            var size = await _context.Sizes.FindAsync(dto.SizeId);
 
-            if (!colorExists || !sizeExists)
+            if (color == null || size == null)
                 return BadRequest("Invalid ColorId or SizeId");
 
             var style = new Style
@@ -39,7 +39,13 @@ namespace StyleManagerApiZizzi.Controllers
             _context.Styles.Add(style);
             await _context.SaveChangesAsync();
 
-            return Ok(style); // or return CreatedAtAction(...) if you like
+            return Ok(new StyleDto
+            {
+                StyleNumber = style.StyleNumber,
+                ColorName = color.ColorName,
+                SizeName = size.SizeName
+            });
+
         }
 
 

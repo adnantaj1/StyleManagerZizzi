@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StyleManagerApiZizzi.Data;
 using StyleManagerApiZizzi.Models;
 
@@ -14,6 +15,22 @@ namespace StyleManagerApiZizzi.Controllers
         {
             _context = context;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetColors()
+        {
+            var colors = await _context.Colors
+                .Select(c => new ColorDto
+                {
+                    Id = c.Id,
+                    ColorName = c.ColorName,
+                    ColorNumber = c.ColorNumber
+                })
+                .ToListAsync();
+
+            return Ok(colors);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateColor([FromBody] ColorDto dto)

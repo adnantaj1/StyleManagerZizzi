@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StyleManagerApiZizzi.Data;
 using StyleManagerApiZizzi.Models;
 
@@ -13,6 +14,21 @@ namespace StyleManagerApiZizzi.Controllers
         public SizesController(AppDbContext context)
         {
             _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSizes()
+        {
+            var sizes = await _context.Sizes
+                .Select(s => new SizeDto
+                {
+                    Id = s.Id,
+                    SizeName = s.SizeName,
+                    SizeNumber = s.SizeNumber
+                })
+                .ToListAsync();
+
+            return Ok(sizes);
         }
 
         [HttpPost]

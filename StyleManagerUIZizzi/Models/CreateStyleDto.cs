@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace StyleManagerApiZizzi.Models
+namespace StyleManagerUIZizzi.Models
 {
     public class CreateStyleDto
     {

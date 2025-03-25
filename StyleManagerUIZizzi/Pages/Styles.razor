@@ -1,0 +1,77 @@
+﻿@page "/styles"
+@using StyleManagerUIZizzi.Models
+@inject StyleManagerUIZizzi.Services.StyleService StyleService
+
+<h3>Create New Style</h3>
+
+<EditForm Model="@newStyle" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Style Number</label>
+        <InputText class="form-control" @bind-Value="newStyle.StyleNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label>Select Color</label>
+        <InputSelect class="form-control" @bind-Value="newStyle.ColorId">
+            @if (newStyle.ColorId == 0)
+            {
+                <option disabled selected value="0">-- Select Color --</option>
+            }
+            @foreach (var color in colors)
+            {
+                <option value="@color.Id">@color.ColorName (@color.ColorNumber)</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label>Select Size</label>
+        <InputSelect class="form-control" @bind-Value="newStyle.SizeId">
+            @if (newStyle.SizeId == 0)
+            {
+                <option disabled selected value="0">-- Select Size --</option>
+            }
+            @foreach (var size in sizes)
+            {
+                <option value="@size.Id">@size.SizeName (@size.SizeNumber)</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button class="btn btn-success">Create Style</button>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success mt-3">@successMessage</div>
+    }
+</EditForm>
+
+@code {
+    private CreateStyleDto newStyle = new();
+    private List<ColorDto> colors = new();
+    private List<SizeDto> sizes = new();
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        colors = await StyleService.GetColors();
+        sizes = await StyleService.GetSizes();
+    }
+
+    private async Task HandleSubmit()
+    {
+        var response = await StyleService.CreateStyle(newStyle);
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "🎉 Style created successfully!";
+            newStyle = new(); // reset form
+        }
+        else
+        {
+            successMessage = "⚠️ Failed to create style.";
+        }
+    }
+}
