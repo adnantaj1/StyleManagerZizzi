@@ -1,0 +1,15 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StyleManagerApiZizzi.Models
+{
+    public class ColorDto
+    {
+        [Required]
+        [MaxLength(10)]
+        public string ColorNumber { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(20)]
+        public string ColorName { get; set; } = string.Empty;
+    }
+}
